@@ -1,0 +1,48 @@
+Resumen de las clases:
+
+useState: este devuelve 2 argumentos:
+ - el valor que nosotros le proporcionamos
+ - la funcion que hará que cambiemos el valor establecido
+ - la funcion puede llevar una funcion dentro: setState(state => state + 1) siendo el state el valor proporcionado
+
+useEffect: Se usa cuando se quiere trabajar con el ciclo de vida
+del componente, este se usa más que nada cuando hay efectos secundarios al cambiar 
+una variable, puedes elegir que cosas se pueden volver a renderizar despues de cierta accion y que cosas no.
+
+useRef: para hacer referencia a algo incluso despues de desmontar el componente,
+un ejemplo de esto esta en la carpeta 04-useRef, donde al hacer click en el boton "show/hide",
+se monta o desmonta un component, al montar ese componente hacer una peticion fetch,
+supongamos que esa peticion dura 4 segundos, si desmonto el componente antes de los 4 segundos
+la peticion seguirá intentando guardar los datos obtenidos en el state de ese fetch, cosa que produce un error
+porque el component ya fue desmontado y no tiene ningun state. 
+Podríamos poner una condicional antes que se asignen valores al state del fetch, pero cuando se desmonte el componente,
+esa variable ya no existira y ocurrirá el mismo problema. Ahí es donde entra el useRef, el valor del useRef perdura a 
+pesar de que se desmonte el componente, podríamos poner su valor del ref como true y al desmontarlo lo ponemos como false,
+de esta manera antes de que se intenten asignar valores al state del fetch, podriamos poner una condicional antes de que 
+se asignen los valores(la condicional podria evaluar si está o no montado el componente)
+
+useLayout: tal cual el useEffect, pero generalmente se utiliza para hacer mediciones de tags del DOM una vez ya renderizado
+
+memos: se utiliza para MEMORIZAR un valor, generalmente se usan cuando hay componentes hijos.
+En el ejemplo tenemos un contador que tiene un componente hijo donde muestra el contador,
+dentro del componente padre tambien tenemos un boton que oculta / muestra un texto, el problema se genera cuando aprietas el boton
+de ocultar/mostrar, ya que esto hace que se cambie el state y por consecuenta se vuelve a renderizar el componente(lo cual estaria bien
+de no ser porque el componente hijo que contiene el contador tambien se vuelve a renderizar y este no ha cambiado su valor, por eso mismo
+como no ha cambiado su valor no deberia volver a renderizarse sin embargo lo hace). para esto se usa el memo.
+memo MEMOrizará el componente hijo (el cual le estamos pasando como argumento el contador), y se volverá a renderizar SI Y SOLO SI 
+el argumento que le pasamos cambia.
+
+Ahora si presionamos el boton de ocultar/mostrar, no deberia de volver a renderizarse el hijo, ya que su argumento contador no ha cambiado.
+
+
+useMemo: Es igual al memo, la diferencia es que memo se utiliza con la renderizacion de componentes y useMemo para envolver
+funciones dentro de un componente, el funcionamiento de ambos es el mismo, ninguno se renderizara nuevamente hasta que sus props cambien
+
+useCallback: podría parecer igual al memo, pero si lo usamos así notaremos que se sigue renderizando el hijo, esto es debido a que el prop
+que le enviamos como argumento al hijo está alterandose(se altera porque la funcion increment se crea dentro del componente padre y al renderizar
+el componente padre se crea dicha funcion, es decir por cada renderizacion del padre se crea una nueva funcion "increment" y como se crea
+una nueva función esto no cuenta como una alteracion en las props del componente hijo), es alli donde se usa el useCallback, con esto le decimos
+a react que mantenga la funcion increment creada en el padre INALTERABLE, es decir que por mas que se renderize el componente, no se creara una nueva
+funcion "increment" sino que se usará la misma, ahora si cambiamos el contador (usando la 2da forma del use state para asignar valor) si cambiara
+la prop del hijo
+
